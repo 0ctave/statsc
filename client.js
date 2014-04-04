@@ -28,9 +28,10 @@
    * 
    * @param  {string} stat
    * @param  {number} sampleRate
+   * @param  {array} tags
    */
-  statsc.increment = function(stat, sampleRate) {
-    statsc.send(['i', stat, sampleRate]);
+  statsc.increment = function(stat, sampleRate, tags) {
+    statsc.send(['c', stat, 1, sampleRate, tags]);
   };  
 
   /** 
@@ -38,9 +39,10 @@
    * 
    * @param  {string} stat
    * @param  {number} sampleRate
+   * @param  {array} tags
    */
-  statsc.decrement = function(stat, sampleRate) {
-    statsc.send(['d', stat, sampleRate]);
+  statsc.decrement = function(stat, sampleRate, tags) {
+    statsc.send(['c', stat, -1, sampleRate, tags]);
   };  
 
   /** 
@@ -49,9 +51,10 @@
    * @param  {string} stat
    * @param  {number} value
    * @param  {number} sampleRate
+   * @param  {array} tags
    */
-  statsc.gauge = function(stat, value, sampleRate) {
-    statsc.send(['g', stat, value, sampleRate]);
+  statsc.gauge = function(stat, value, sampleRate, tags) {
+    statsc.send(['g', stat, value, sampleRate, tags]);
   };  
 
   /** 
@@ -65,18 +68,19 @@
    * @param  {string}               stat
    * @param  {number|Date|function} time
    * @param  {number}               sampleRate
+   * @param  {array} tags
    */
-  statsc.timing = function(stat, time, sampleRate) {
+  statsc.timing = function(stat, time, sampleRate, tags) {
     if ('number' == typeof time) {
-      return statsc.send(['t', stat, time, sampleRate]);
+      return statsc.send(['ms', stat, time, sampleRate, tags]);
     }   
     if (time instanceof Date) {
-      return statsc.send(['t', stat, fromNow(time), sampleRate]);
+      return statsc.send(['ms', stat, fromNow(time), sampleRate, tags]);
     }   
     if ('function' == typeof time) {
       var start = new Date();
       time();
-      statsc.send(['t', stat, fromNow(start), sampleRate]);
+      statsc.send(['ms', stat, fromNow(start), sampleRate, tags]);
     }   
   };  
 
@@ -88,13 +92,14 @@
    * 
    * @param  {string}   stat
    * @param  {number}   sampleRate
+   * @param  {array} tags
    * @return {function}
    */
-  statsc.timer = function(stat, sampleRate) {
+  statsc.timer = function(stat, sampleRate, tags) {
     var start = new Date().getTime();
 
     return function() {
-      statsc.send(['t', stat, fromNow(start), sampleRate]);
+      statsc.send(['ms', stat, fromNow(start), sampleRate, tags]);
     }   
   };  
 
@@ -119,7 +124,7 @@
         }
 
         var tag = document.createElement('script');
-        tag.src = addr+JSON.stringify(queue);
+        tag.src = addr + '?' + queue.map(pack).join(';').replace(/#/g, '%23');
         tag.onload = function () {
           head.removeChild(tag);
         }
@@ -140,6 +145,29 @@
    */
   function fromNow(date) {
     return new Date() - date;
+  }
+
+  function pack(stat) {
+    var type = stat[0],
+        key = stat[1],
+        value = stat[2] || 1,
+        sampleRate = stat[3],
+        tags = stat[4],
+        str = key + ':' + value + '|' + type
+
+    if (sampleRate instanceof Array) {
+      tags = sampleRate
+      sampleRate = undefined
+    }
+
+    if (sampleRate) {
+      str += '|@' + sampleRate
+    }
+    if (tags) {
+      str += '|#' + tags.join(',')
+    }
+
+    return str
   }
 
   /**
