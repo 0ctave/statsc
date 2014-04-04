@@ -4,6 +4,7 @@
 	<script src="client.js"></script>
 	<script type="text/javascript">
   		window.addEventListener('load', function() {
+        statsc.prefix = 'statsc.test.'
   			statsc.increment('test');
   			statsc.decrement('test');
   			statsc.gauge('test', 1337);

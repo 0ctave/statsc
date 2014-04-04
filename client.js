@@ -8,7 +8,9 @@
    *   g = gauge
    */
 
-  var statsc = {}; 
+  var statsc = {
+    prefix: ''
+  }; 
   var addr;
 
   /** 
@@ -155,7 +157,7 @@
         value = stat[2] || 1,
         sampleRate = stat[3],
         tags = stat[4],
-        str = key + ':' + value + '|' + type
+        str = statsc.prefix + key + ':' + value + '|' + type
 
     if (sampleRate instanceof Array) {
       tags = sampleRate
