@@ -9,7 +9,7 @@
    */
 
   var statsc = {}; 
-  var addr = 'http://localhost:8127/';
+  var addr;
 
   /** 
    * Set the statsc server address.
@@ -20,7 +20,7 @@
    * @param  {String} _addr
    */
   statsc.connect = function(_addr) {
-    addr = _addr;
+    addr = _addr || 'http://localhost:8127/';
   };  
 
   /** 
@@ -123,12 +123,14 @@
           }
         }
 
-        var tag = document.createElement('script');
-        tag.src = addr + '?' + queue.map(pack).join(';').replace(/#/g, '%23');
-        tag.onload = function () {
-          head.removeChild(tag);
+        if (addr) {
+          var tag = document.createElement('script');
+          tag.src = addr + '?' + queue.map(pack).join(';').replace(/#/g, '%23');
+          tag.onload = function () {
+            head.removeChild(tag);
+          }
+          head.appendChild(tag);
         }
-        head.appendChild(tag);
 
         queue = [];
       }
