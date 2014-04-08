@@ -60,6 +60,18 @@
   };  
 
   /** 
+   * Add the value `value` to a set `stat`.
+   * 
+   * @param  {string} stat
+   * @param  {number} value
+   * @param  {number} sampleRate
+   * @param  {array} tags
+   */
+  statsc.set = function(stat, value, sampleRate, tags) {
+    statsc.send(['s', stat, value, sampleRate, tags]);
+  };  
+
+  /** 
    * Log `time` to `stat`.
    *
    * `time` can either be
