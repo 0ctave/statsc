@@ -110,11 +110,12 @@
    * @return {function}
    */
   statsc.timer = function(stat, sampleRate, tags) {
-    var start = new Date().getTime();
-
-    return function() {
-      statsc.send(['ms', stat, fromNow(start), sampleRate, tags]);
+    var fn = function() {
+      statsc.send(['ms', stat, fromNow(fn.start), sampleRate, tags]);
     }   
+    fn.start = new Date().getTime();
+
+    return fn;
   };  
 
   /** 
