@@ -144,7 +144,7 @@
 
               while (addr && localQueue.length > 0) {
                   var buffer = localQueue.slice(0, maxQueueLength);
-                  var str = JSON.stringify(compressAsJson(buffer));
+                  var str = JSON.stringify(compressAsObject(buffer));
                   if (str.length <= maxJsonLength) {
                       var tag = document.createElement('script');
                       tag.src = addr + '?json=' + str;
@@ -175,30 +175,7 @@
     return new Date() - date;
   }
 
-  function pack(stat) {
-    var type = stat[0],
-        key = stat[1],
-        value = stat[2] || 1,
-        sampleRate = stat[3],
-        tags = stat[4],
-        str = statsc.prefix + key + ':' + value + '|' + type
-
-    if (sampleRate instanceof Array) {
-      tags = sampleRate
-      sampleRate = undefined
-    }
-
-    if (sampleRate) {
-      str += '|@' + sampleRate
-    }
-    if (tags) {
-      str += '|#' + tags.join(',')
-    }
-
-    return str
-  }
-
-    function compressAsJson(queue) {
+    function compressAsObject(queue) {
         var result = {};
         queue.forEach(function(stat){
             var type = stat[0],
