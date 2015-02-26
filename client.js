@@ -141,8 +141,8 @@
                       if (localQueue[i][j] == null) localQueue[i].splice(j, 1);
                   }
               }
-
-              while (addr && localQueue.length > 0) {
+              var i = 0;
+              while (addr && localQueue.length > 0 || i == 10) {
                   var buffer = localQueue.slice(0, maxQueueLength);
                   var str = JSON.stringify(compressAsObject(buffer));
                   if (str.length <= maxJsonLength) {
@@ -154,6 +154,7 @@
                       head.appendChild(tag);
                       localQueue.splice(0, maxQueueLength);
                   } else {
+                      i++;
                       maxQueueLength = Math.floor(maxQueueLength / 1.5);
                   }
               }
@@ -177,28 +178,72 @@
 
     function compressAsObject(queue) {
         var result = {};
+        var counts = {};
         queue.forEach(function(stat){
             var type = stat[0],
                 key = stat[1],
                 value = stat[2] || 1,
                 sampleRate = stat[3],
                 tags = stat[4];
-            if (result[type] == undefined) {
-                result[type] = {};
+            if (type == 'c') {
+                var prefixedKey = (statsc.prefix + key);
+                if (counts[prefixedKey] == undefined) {
+                    counts[prefixedKey] = {};
+                }
+                var suffix = '_';
+                if (sampleRate) {
+                    suffix += '|@' + sampleRate
+                }
+                if (tags) {
+                    suffix += '|#' + tags.join(',')
+                }
+
+                if (counts[prefixedKey][suffix] == undefined) {
+                    counts[prefixedKey][suffix] = 0;
+                }
+                counts[prefixedKey][suffix] += value;
             }
-            var prefixed = (statsc.prefix + key);
-            if (result[type][prefixed] == undefined) {
-                result[type][prefixed] = [];
-            }
-            var val = value;
-            if (sampleRate) {
-                val += '|@' + sampleRate
-            }
-            if (tags) {
-                val += '|#' + tags.join(',')
-            }
-            result[type][prefixed].push(val);
         });
+        queue.forEach(function(stat){
+            var type = stat[0],
+                key = stat[1],
+                value = stat[2] || 1,
+                sampleRate = stat[3],
+                tags = stat[4];
+            if (type != 'c') {
+                if (result[type] == undefined) {
+                    result[type] = {};
+                }
+                var prefixed = (statsc.prefix + key);
+                if (result[type][prefixed] == undefined) {
+                    result[type][prefixed] = [];
+                }
+                var val = value;
+                if (sampleRate) {
+                    val += '|@' + sampleRate
+                }
+                if (tags) {
+                    val += '|#' + tags.join(',')
+                }
+                result[type][prefixed].push(val);
+            }
+        });
+
+        for (var key in counts) {
+            if (!counts.hasOwnProperty(key)) continue;
+
+            for(var suffix in counts[key]) {
+                if (!counts[key].hasOwnProperty(suffix)) continue;
+
+                if (result['c'] == undefined) {
+                    result['c'] = {};
+                }
+                if (result['c'][key] == undefined) {
+                    result['c'][key] = [];
+                }
+                result['c'][key].push(counts[key][suffix] + suffix.slice(1));
+            }
+        }
         return result;
     }
 
