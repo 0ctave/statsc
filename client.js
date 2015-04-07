@@ -148,11 +148,9 @@
                   if (str.length <= maxJsonLength) {
                       var tag = document.createElement('script');
                       tag.src = addr + '?json=' + str;
-                      tag.onload = function () {
-                          head.removeChild(tag);
-                      };
                       head.appendChild(tag);
                       localQueue.splice(0, maxQueueLength);
+                      head.removeChild(tag);
                   } else {
                       i++;
                       maxQueueLength = Math.floor(maxQueueLength / 1.5);
