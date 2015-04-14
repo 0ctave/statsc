@@ -146,11 +146,9 @@
                   var buffer = localQueue.slice(0, maxQueueLength);
                   var str = JSON.stringify(compressAsObject(buffer));
                   if (str.length <= maxJsonLength) {
-                      var tag = document.createElement('script');
+                      var tag = document.createElement('img');
                       tag.src = addr + '?json=' + str;
-                      head.appendChild(tag);
                       localQueue.splice(0, maxQueueLength);
-                      head.removeChild(tag);
                   } else {
                       i++;
                       maxQueueLength = Math.floor(maxQueueLength / 1.5);
