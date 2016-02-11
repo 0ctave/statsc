@@ -4,8 +4,8 @@
 	<script src="client.js"></script>
 	<script type="text/javascript">
   		window.addEventListener('load', function() {
-        statsc.prefix = 'statsc.test.'
-  			statsc.increment('test');
+            statsc.prefix = 'statsc.test.';
+  			statsc.increment('test', 10);
   			statsc.decrement('test');
   			statsc.gauge('test', 1337);
   			var finished = statsc.timer('timer-functional');
@@ -97,7 +97,9 @@
   			statsc.timing('ts-date', 10);
   			statsc.increment('test');
   			statsc.decrement('test');
-  			statsc.gauge('test', 1337);
+            for (var i = 0; i < 1000; i++) {
+                statsc.gauge('test', 1337 + i);
+            }
   			var finished = statsc.timer('timer-functional');
   			finished();
   			statsc.timing('tiner-sync', function() {});
@@ -105,7 +107,7 @@
   			statsc.timing('timer-date', start);
   			var ts = new Date().getTime();
   			statsc.timing('ts-date', 10);
-        statsc.connect()
+            statsc.connect();
   		});
 	</script>
 </head>

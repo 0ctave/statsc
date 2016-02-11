@@ -4,7 +4,7 @@
   "author": "Julian Gruber <jgruber@boerse-go.de>",
   "repository": "git://github.com/godmodelabs/statsc",
   "dependencies": {
-    "lynx": "git+ssh://git@github.com/0ctave/lynx.git"
+    "lynx": "git+ssh://git@github.com/grammarly/lynx.git"
   },
   "bin": {
     "statsc-server": "./bin/statsc-server"
